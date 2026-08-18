@@ -1,36 +1,41 @@
+import os
+
 from flask import Flask
 
 from config import Config
-from extensions import db, bcrypt, jwt, cors
+from database import initialize_database
+from extensions import bcrypt, jwt, cors
 from routes.auth import auth_bp
-from routes.predict import predict_bp
 
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    # Initialize extensions
-    db.init_app(app)
     bcrypt.init_app(app)
     jwt.init_app(app)
     cors.init_app(app, resources={r"/api/*": {"origins": "*"}})  # allow React dev server
-
-    # Register routes
+   
     app.register_blueprint(auth_bp)
-    app.register_blueprint(predict_bp)
 
-    # Create DB tables if they don't exist yet
-    with app.app_context():
-        db.create_all()
+    app.config["MYSQL_INITIALIZATION_ERROR"] = initialize_database()
 
     @app.route("/")
     def health_check():
-        return {"status": "ok", "message": "House Price Prediction API is running."}
+        database_ready = not app.config["MYSQL_INITIALIZATION_ERROR"]
+        return {
+            "status": "ok" if database_ready else "degraded",
+            "database": "connected" if database_ready else "unavailable",
+            "message": "House Price Prediction API is running.",
+        }
 
     return app
 
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(debug=True, port=5000)
+    app.run(
+        debug=True,
+        host=os.environ.get("FLASK_HOST", "127.0.0.1"),
+        port=int(os.environ.get("FLASK_PORT", "5000")),
+    )
