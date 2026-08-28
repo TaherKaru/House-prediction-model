@@ -1,0 +1,23 @@
+cd "C:\Users\HP\Desktop\Field project"
+
+@"
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# ML models (too large for git, regenerate via notebooks)
+Data/models/*.pkl
+
+# Virtual environments
+.venv/
+venv/
+
+# Frontend (already has its own .gitignore, but just in case)
+Frontend/node_modules/
+Frontend/dist/
+
+# OS/editor junk
+.DS_Store
+Thumbs.db
+"@ | Out-File -FilePath .gitignore -Encoding utf8
