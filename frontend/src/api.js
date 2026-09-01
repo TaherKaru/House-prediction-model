@@ -1,10 +1,17 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
 export async function api(path, options = {}) {
+  const { headers: customHeaders = {}, ...requestOptions } = options;
+  const mergedHeaders = {
+    ...(requestOptions.body ? { 'Content-Type': 'application/json' } : {}),
+    ...customHeaders,
+  };
+
   const response = await fetch(`${API_URL}${path}`, {
-    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
-    ...options,
+    ...requestOptions,
+    headers: mergedHeaders,
   });
+
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {
     const validationMessage = Array.isArray(body.detail)
