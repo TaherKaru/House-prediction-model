@@ -1,0 +1,1 @@
+"""HouseValue FastAPI application package."""

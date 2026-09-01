@@ -1,3 +1,8 @@
+Data/cleaned_data.csv
+Data/models/lightgbm.pkl
+Data/models/kmeans.pkl
+Backend/housevalue.db
+
 cd "C:\Users\HP\Desktop\Field project"
 
 @"

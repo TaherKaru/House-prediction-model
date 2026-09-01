@@ -1,0 +1,8 @@
+stages:
+  evaluate:
+    cmd: python Backend/ml/evaluate_model.py --minimum-r2 0.50
+    deps:
+      - Backend/ml/evaluate_model.py
+      - Data/cleaned_data.csv
+      - Data/models/lightgbm.pkl
+      - Data/models/kmeans.pkl

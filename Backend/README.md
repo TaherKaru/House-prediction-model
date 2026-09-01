@@ -1,50 +1,31 @@
-# Havenly backend
+# HouseValue FastAPI backend
 
-This Flask API stores accounts in MySQL. On startup it automatically creates
-the configured database and the `users` table if they do not already exist.
+This FastAPI API stores accounts, feedback and retraining jobs through SQLAlchemy.
+It uses SQLite locally and PostgreSQL when `DATABASE_URL` is supplied.
 
-## Configure MySQL
+## Configure
 
-1. Start your MySQL service (for example, from XAMPP).
-2. Copy `.env.example` to a new file called `.env` inside this `Backend` folder.
-3. Set the credentials that work in your MySQL installation:
+Copy `.env.example` to a new file called `.env` inside this folder. For PostgreSQL,
+set a connection string such as:
 
 ```env
-MYSQL_HOST=127.0.0.1
-MYSQL_PORT=3306
-MYSQL_USER=root
-MYSQL_PASSWORD=your-mysql-password
-MYSQL_DATABASE=havenly
+DATABASE_URL=postgresql+psycopg://housevalue:password@127.0.0.1:5432/housevalue
+JWT_SECRET=replace-with-a-long-random-secret
 ```
 
-`MYSQL_DATABASE` may be changed to any new database name. The app creates it
-and creates this table automatically:
-
-```sql
-users (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(100) NOT NULL,
-  email VARCHAR(255) NOT NULL UNIQUE,
-  password_hash VARCHAR(255) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
-```
+Without `DATABASE_URL`, `housevalue.db` is created automatically.
 
 ## Run
 
 ```powershell
-cd Backend
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe app.py
+.\.venv\Scripts\python.exe -m pip install -r Backend\requirements.txt
+.\.venv\Scripts\python.exe -m uvicorn app:app --app-dir Backend --reload --port 8000
 ```
 
-Open `http://127.0.0.1:5000/`. It reports `database: connected` once the
-credentials are correct.
+Open `http://127.0.0.1:8000/docs` for the interactive API documentation.
 
 ## Security used
 
-- **bcrypt is necessary:** it hashes passwords before they are written to
-  MySQL. Plain-text passwords are never stored.
-- **JWT is necessary in this app:** login returns a token, and `/api/predict`
-  can use that token when prediction access is added. Remove JWT only if no
-  authenticated user session is needed.
+- Passwords are BCrypt hashes; plain-text passwords are never stored.
+- JWT is required for `/api/predict` and `/api/feedback`.
+- `/api/predict` loads the packaged LightGBM and KMeans artefacts from `Data/models`.
